@@ -22,6 +22,11 @@ namespace AdventOfCode2021.Models
         public int Depth { get; private set; }
 
         /// <summary>
+        /// Gets the aim.
+        /// </summary>
+        public int Aim { get; private set; }
+
+        /// <summary>
         /// Moves the submarines according to the provided vector.
         /// </summary>
         /// <param name="vector">The vector describing the movement direction and distance.</param>
@@ -30,15 +35,16 @@ namespace AdventOfCode2021.Models
             switch (vector.Direction)
             {
                 case Direction.Up:
-                    this.Depth -= vector.Distance;
+                    this.Aim -= vector.Distance;
                     break;
 
                 case Direction.Down:
-                    this.Depth += vector.Distance;
+                    this.Aim += vector.Distance;
                     break;
 
                 case Direction.Forward:
                     this.HorizontalPosition += vector.Distance;
+                    this.Depth += this.Aim * vector.Distance;
                     break;
             }
         }
