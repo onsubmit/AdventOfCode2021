@@ -6,68 +6,125 @@
 
 namespace AdventOfCode2021.Days
 {
+    using AdventOfCode2021.Models;
+
     /// <summary>
     /// Calculates the solution for the particular day.
     /// </summary>
     internal class Day03 : IDay
     {
+        private static readonly List<int[]> AllBits = GetAllBits();
+
         /// <summary>
         /// Calculates the solution for the particular day.
         /// </summary>
         /// <returns>The solution.</returns>
         public string GetSolution()
         {
-            int[] commonBits = GetMostCommonBits();
-            int gammaRate = GetDecimalFromBits(commonBits);
-            int epsilonRate = GetDecimalFromBits(commonBits.Select(b => b == 0 ? 1 : 0));
-            int powerConsumption = gammaRate * epsilonRate;
+            int oxygenGeneratorRating = GetOxygenGeneratorRating();
+            int carbonDioxideScrubberRating = GetCO2ScrubberRating();
+            int lifeSupportRating = oxygenGeneratorRating * carbonDioxideScrubberRating;
 
-            return powerConsumption.ToString();
+            return lifeSupportRating.ToString();
         }
 
         /// <summary>
-        /// Gets the most common bits from the input.
+        /// Gets all the bits from the input.
         /// </summary>
-        /// <returns>Array of the most common bits.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when input is bad.</exception>
-        private static int[] GetMostCommonBits()
+        /// <returns>All the bits.</returns>
+        private static List<int[]> GetAllBits()
         {
+            List<int[]> allBits = new();
             using StreamReader sr = new("input\\Day03.txt");
-            string? line = sr.ReadLine();
 
-            if (line == null)
+            string? line;
+            while ((line = sr.ReadLine()) != null)
             {
-                throw new InvalidOperationException("Bad input");
+                int[] bits = line.Select(c => c == '1' ? 1 : 0).ToArray();
+                allBits.Add(bits);
             }
 
-            int[] bits = new int[line.Length];
+            return allBits;
+        }
 
-            do
+        /// <summary>
+        /// Gets the oxygen generator rating.
+        /// </summary>
+        /// <returns>The oxygen generator rating.</returns>
+        private static int GetOxygenGeneratorRating() => GetRating(CommonBitStrategy.Most);
+
+        /// <summary>
+        /// Gets the C02 scrubber rating.
+        /// </summary>
+        /// <returns>The C02 scrubber rating.</returns>
+        private static int GetCO2ScrubberRating() => GetRating(CommonBitStrategy.Least);
+
+        /// <summary>
+        /// Gets a rating.
+        /// </summary>
+        /// <param name="strategy">The strategy to use to determine the common bits.</param>
+        /// <returns>The rating.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if input is bad.</exception>
+        private static int GetRating(CommonBitStrategy strategy)
+        {
+            List<int[]> filteredBits = new(AllBits);
+            int[] commonBits = GetMostCommonBits(filteredBits, strategy);
+
+            for (int i = 0; i < commonBits.Length; i++)
             {
-                for (int i = 0; i < line.Length; i++)
+                filteredBits = filteredBits.Where(b => b[i] == commonBits[i]).ToList();
+
+                if (filteredBits.Count == 1)
                 {
-                    bits[i] += line[i] switch
+                    return GetDecimalFromBits(filteredBits[0]);
+                }
+
+                commonBits = GetMostCommonBits(filteredBits, strategy);
+            }
+
+            throw new InvalidOperationException("Could not determine rating");
+        }
+
+        /// <summary>
+        /// Gets the list of most common bit for the given bits.
+        /// </summary>
+        /// <param name="bits">The bits to find the most common bit.</param>
+        /// <param name="strategy">The strategy to use to determine the common bits.</param>
+        /// <returns>The list of common bits.</returns>
+        private static int[] GetMostCommonBits(List<int[]> bits, CommonBitStrategy strategy)
+        {
+            if (bits.Count == 0)
+            {
+                return Array.Empty<int>();
+            }
+
+            int[] commonBits = new int[bits[0].Length];
+            for (int i = 0; i < bits.Count; i++)
+            {
+                for (int j = 0; j < bits[i].Length; j++)
+                {
+                    // Increment for ones.
+                    // Decrement for zeros.
+                    commonBits[j] += bits[i][j] switch
                     {
-                        '0' => -1, // Subtract 1 for 0
-                        '1' => 1, // Add 1 for 1
+                        0 => -1,
+                        1 => 1,
                         _ => throw new InvalidOperationException("Input line must be binary"),
                     };
                 }
             }
-            while ((line = sr.ReadLine()) != null);
 
-            for (int i = 0; i < bits.Length; i++)
+            // Determine most/least common bits.
+            for (int i = 0; i < commonBits.Length; i++)
             {
-                // If bit is positive, it's the most common one.
-                bits[i] = bits[i] switch
+                commonBits[i] = commonBits[i] switch
                 {
-                    > 0 => 1,
-                    < 0 => 0,
-                    _ => throw new InvalidOperationException($"Bit {i} was equally common. Undefined behavior."),
+                    < 0 => strategy == CommonBitStrategy.Most ? 0 : 1,
+                    _ => strategy == CommonBitStrategy.Most ? 1 : 0,
                 };
             }
 
-            return bits;
+            return commonBits;
         }
 
         /// <summary>
