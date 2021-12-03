@@ -14,7 +14,6 @@ namespace AdventOfCode2021.Days
         /// Gets the number of depth increases.
         /// </summary>
         /// <returns>The number of depth increases.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when the depth readings are not found.</exception>
         public string GetSolution()
         {
             int increases = 0;
