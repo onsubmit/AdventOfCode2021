@@ -2,7 +2,7 @@
 // Copyright (c) Andy Young. All rights reserved.
 // </copyright>
 
-namespace AdventOfCode2021 // Note: actual namespace depends on the project name.
+namespace AdventOfCode2021
 {
     using System;
     using AdventOfCode2021.Days;
