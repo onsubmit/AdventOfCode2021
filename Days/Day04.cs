@@ -32,17 +32,25 @@ namespace AdventOfCode2021.Days
 
             BingoGame game = new(boards, drawnNumbers);
 
+            int lastNumberDrawn = 0;
+            BingoBoard? lastWinningBoard = null;
             while (game.TryDrawNumber(out int number))
             {
-                if (game.TryGetWinningBoard(number, out BingoBoard? winningBoard))
+                if (game.TryMarkLosingBoardsAndGetLastWinningBoard(number, out BingoBoard? temp))
                 {
-                    int sumOfUnmarkedSquares = winningBoard?.GetSumOfUnmarkedSquares() ?? 0;
-                    int solution = sumOfUnmarkedSquares * number;
-                    return solution.ToString();
+                    lastNumberDrawn = number;
+                    lastWinningBoard = temp;
                 }
             }
 
-            throw new InvalidOperationException("No winning board was found");
+            if (lastWinningBoard != null)
+            {
+                int sumOfUnmarkedSquares = lastWinningBoard.GetSumOfUnmarkedSquares();
+                int solution = sumOfUnmarkedSquares * lastNumberDrawn;
+                return solution.ToString();
+            }
+
+            throw new InvalidOperationException("No last winning board was found");
         }
 
         /// <summary>

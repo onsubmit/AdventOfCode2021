@@ -33,25 +33,27 @@ namespace AdventOfCode2021.Models
         public bool TryDrawNumber(out int number) => this.numbersToDraw.TryPop(out number);
 
         /// <summary>
-        /// Marks the number on each board and returns the first winning board if found.
+        /// Marks the number on each losing board and gets the last board to win, if found.
         /// </summary>
         /// <param name="drawnNumber">The drawn number.</param>
-        /// <param name="winningBoard">The winning board if found.</param>
-        /// <returns><c>true</c> if a winning board was found, <c>false</c> otherwise.</returns>
-        public bool TryGetWinningBoard(int drawnNumber, out BingoBoard? winningBoard)
+        /// <param name="lastWinningBoard">The last winning board.</param>
+        /// <returns><c>true</c> if a newly won board was found, <c>false</c> otherwise.</returns>
+        public bool TryMarkLosingBoardsAndGetLastWinningBoard(int drawnNumber, out BingoBoard? lastWinningBoard)
         {
-            winningBoard = null;
+            lastWinningBoard = null;
 
             foreach (BingoBoard board in this.boards)
             {
-                if (board.Mark(drawnNumber) && board.IsWon())
+                if (board.MarkIfLost(drawnNumber))
                 {
-                    winningBoard = board;
-                    return true;
+                    if (board.DetermineIfWonAndCacheResult())
+                    {
+                        lastWinningBoard = board;
+                    }
                 }
             }
 
-            return false;
+            return lastWinningBoard != null;
         }
     }
 }

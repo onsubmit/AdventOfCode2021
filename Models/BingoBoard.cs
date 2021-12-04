@@ -12,6 +12,7 @@ namespace AdventOfCode2021.Models
     internal class BingoBoard
     {
         private readonly BingoSquare[,] board;
+        private bool? isWonCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BingoBoard"/> class.
@@ -57,11 +58,31 @@ namespace AdventOfCode2021.Models
         }
 
         /// <summary>
-        /// Determines if the board is won.
+        /// Marks the value on a losing board if found.
+        /// </summary>
+        /// <param name="value">The value to mark.</param>
+        /// <returns><c>true</c> if the value was found on the board, <c>false</c> if the board is already won or the value was not found.</returns>
+        public bool MarkIfLost(int value)
+        {
+            if (this.isWonCache == true)
+            {
+                return false;
+            }
+
+            return this.Mark(value);
+        }
+
+        /// <summary>
+        /// Determines if the board is won and caches the result.
         /// </summary>
         /// <returns><c>true</c> if the board is won, <c>false</c> otherwise.</returns>
-        public bool IsWon()
+        public bool DetermineIfWonAndCacheResult()
         {
+            if (this.isWonCache == true)
+            {
+                return true;
+            }
+
             // Check rows.
             for (int x = 0; x < this.board.GetLength(0); x++)
             {
@@ -77,6 +98,7 @@ namespace AdventOfCode2021.Models
 
                 if (areAllMarked)
                 {
+                    this.isWonCache = true;
                     return true;
                 }
             }
@@ -96,10 +118,12 @@ namespace AdventOfCode2021.Models
 
                 if (areAllMarked)
                 {
+                    this.isWonCache = true;
                     return true;
                 }
             }
 
+            this.isWonCache = false;
             return false;
         }
 
