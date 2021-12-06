@@ -17,9 +17,10 @@ namespace AdventOfCode2021.Days
         /// <returns>The solution.</returns>
         public string GetSolution()
         {
-            const int NumDays = 80;
+            const int NumDays = 256;
             const int NumDaysToSpawn = 6;
             const int NumExtraDaysForNewFishToSpawn = 2;
+            const int NumDaysToSpawnForNewFish = NumDaysToSpawn + NumExtraDaysForNewFishToSpawn;
 
             using StreamReader sr = new("input\\Day06.txt");
             string? line = sr.ReadLine();
@@ -30,24 +31,26 @@ namespace AdventOfCode2021.Days
             }
 
             List<uint> fish = line.Split(",").Select(s => uint.Parse(s)).ToList();
-            for (int day = 0; day < NumDays; day++)
+            long[] fishCounts = new long[NumDaysToSpawn + NumExtraDaysForNewFishToSpawn + 1];
+            foreach (long f in fish)
             {
-                int numFishAtDayStart = fish.Count;
-                for (int i = 0; i < numFishAtDayStart; i++)
-                {
-                    if (fish[i] == 0)
-                    {
-                        fish[i] = NumDaysToSpawn;
-                        fish.Add(NumDaysToSpawn + NumExtraDaysForNewFishToSpawn);
-                    }
-                    else
-                    {
-                        fish[i]--;
-                    }
-                }
+                fishCounts[f]++;
             }
 
-            return fish.Count.ToString();
+            for (int day = 0; day < NumDays; day++)
+            {
+                long numFishThatWillSpawn = fishCounts[0];
+
+                for (int i = 0; i < fishCounts.Length - 1; i++)
+                {
+                    fishCounts[i] = fishCounts[i + 1];
+                }
+
+                fishCounts[NumDaysToSpawn] += numFishThatWillSpawn;
+                fishCounts[NumDaysToSpawnForNewFish] = numFishThatWillSpawn;
+            }
+
+            return fishCounts.Sum().ToString();
         }
     }
 }
