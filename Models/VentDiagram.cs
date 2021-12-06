@@ -47,31 +47,29 @@ namespace AdventOfCode2021.Models
         /// <param name="reading">The vent reading.</param>
         public void RecordReading(VentReading reading)
         {
-            if (reading.Start.X == reading.End.X)
-            {
-                // Vertical reading
-                int minY = Math.Min(reading.Start.Y, reading.End.Y);
-                int maxY = Math.Max(reading.Start.Y, reading.End.Y);
+            bool isHorizontalReading = reading.Start.X == reading.End.X;
+            bool isVerticalReading = reading.Start.Y == reading.End.Y;
+            bool isDiagonalReading = Math.Abs(reading.End.X - reading.Start.X) == Math.Abs(reading.End.Y - reading.Start.Y);
 
-                for (int y = minY; y <= maxY; y++)
-                {
-                    this.positions[reading.Start.X, y]++;
-                }
-            }
-            else if (reading.Start.Y == reading.End.Y)
+            if (!isHorizontalReading && !isVerticalReading && !isDiagonalReading)
             {
-                // Horizontal reading
-                int minX = Math.Min(reading.Start.X, reading.End.X);
-                int maxX = Math.Max(reading.Start.X, reading.End.X);
+                throw new InvalidOperationException("Only horizontal, vertical, and diagonal readings are supported.");
+            }
 
-                for (int x = minX; x <= maxX; x++)
-                {
-                    this.positions[x, reading.Start.Y]++;
-                }
-            }
-            else
+            int x = reading.Start.X;
+            int y = reading.Start.Y;
+
+            int xDelta = isHorizontalReading ? 0 : reading.Start.X < reading.End.X ? 1 : -1;
+            int yDelta = isVerticalReading ? 0 : reading.Start.Y < reading.End.Y ? 1 : -1;
+
+            int stopX = reading.End.X + xDelta;
+            int stopY = reading.End.Y + yDelta;
+
+            while (x != stopX || y != stopY)
             {
-                // Ignore readings that are not horizontal or vertical.
+                this.positions[x, y]++;
+                x += xDelta;
+                y += yDelta;
             }
         }
     }
