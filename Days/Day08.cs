@@ -19,34 +19,37 @@ namespace AdventOfCode2021.Days
         /// <returns>The solution.</returns>
         public string GetSolution()
         {
-            int[] numSegments = new int[10] { 6, 2, 5, 5, 4, 5, 6, 3, 7, 6 };
-            int[] uniqueSegmentAmounts = new int[4] { 2, 3, 4, 7 };
-
             using StreamReader sr = new("input\\Day08.txt");
             string? line = null;
 
-            int numUniqueNumbers = 0;
+            int sum = 0;
             while ((line = sr.ReadLine()) != null)
             {
                 SevenSegmentDisplayEntry entry = GetSevenSegmentDisplayEntry(line);
-                numUniqueNumbers += entry.OutputValue.Count(v => uniqueSegmentAmounts.Contains(v.Length));
+                sum += entry.GetDecodedOutputValue();
             }
 
-            return numUniqueNumbers.ToString();
+            return sum.ToString();
         }
 
+        /// <summary>
+        /// Gets a <see cref="SevenSegmentDisplayEntry"/> from an input line.
+        /// </summary>
+        /// <param name="line">The input line.</param>
+        /// <returns>The <see cref="SevenSegmentDisplayEntry"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if input is bad.</exception>
         private static SevenSegmentDisplayEntry GetSevenSegmentDisplayEntry(string line)
         {
             string[] split = line.Split('|');
             if (split.Length != 2)
             {
-                throw new InvalidOperationException("Bad input");
+                throw new InvalidOperationException("Input is bad");
             }
 
             return new()
             {
-                SignalPatterns = new(split[0].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries)),
-                OutputValue = new(split[1].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries)),
+                SignalPatterns = new(split[0].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => string.Concat(s.OrderBy(c => c)))),
+                OutputValue = new(split[1].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => string.Concat(s.OrderBy(c => c)))),
             };
         }
     }
