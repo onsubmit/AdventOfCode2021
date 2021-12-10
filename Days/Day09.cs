@@ -26,9 +26,11 @@ namespace AdventOfCode2021.Days
             }
 
             HeightMap heightMap = new(lines);
-            int sum = heightMap.GetSumOfLowPointRiskLevels();
+            List<(int X, int Y)> lowPoints = heightMap.GetCoordinatesOfLowPoints();
+            int[] basinSizes = lowPoints.Select(p => heightMap.GetBasinSize(p.X, p.Y)).ToArray();
+            int solution = basinSizes.OrderByDescending(s => s).Take(3).Aggregate(1, (acc, s) => acc * s);
 
-            return sum.ToString();
+            return solution.ToString();
         }
     }
 }

@@ -33,12 +33,13 @@ namespace AdventOfCode2021.Models
         public HeightMapEntry[][] Entries { get; private set; }
 
         /// <summary>
-        /// Gets the sum of the risk levels of the low points.
+        /// Gets the coordinates of all the low points.
         /// </summary>
-        /// <returns>The sum of the risk levels of the low points.</returns>
-        public int GetSumOfLowPointRiskLevels()
+        /// <returns>The coordinates of all the low points.</returns>
+        public List<(int X, int Y)> GetCoordinatesOfLowPoints()
         {
-            int sum = 0;
+            List<(int, int)> lowPoints = new();
+
             for (int i = 0; i < this.width; i++)
             {
                 for (int j = 0; j < this.height; j++)
@@ -54,12 +55,58 @@ namespace AdventOfCode2021.Models
 
                     if (isLowPoint)
                     {
-                        sum += this.Entries[i][j].Height + 1;
+                        lowPoints.Add((i, j));
                     }
                 }
             }
 
-            return sum;
+            return lowPoints;
+        }
+
+        /// <summary>
+        /// Gets the size of the basin for the low point at the given coordinates.
+        /// </summary>
+        /// <param name="i">The index along the first dimension.</param>
+        /// <param name="j">The index along the second dimension.</param>
+        /// <returns>The size of the basin.</returns>
+        public int GetBasinSize(int i, int j)
+        {
+            if (this.Entries[i][j].IsLowPoint != true)
+            {
+                throw new InvalidOperationException("This is not a low point.");
+            }
+
+            Stack<(int, int)> stack = new();
+            HashSet<(int, int)> basin = new();
+            stack.Push((i, j));
+            basin.Add((i, j));
+
+            while (stack.TryPop(out (int X, int Y) coords))
+            {
+                foreach ((int X, int Y) direction in Directions)
+                {
+                    int x = coords.X + direction.X;
+                    int y = coords.Y + direction.Y;
+
+                    if (x < 0 || x >= this.width)
+                    {
+                        continue;
+                    }
+
+                    if (y < 0 || y >= this.height)
+                    {
+                        continue;
+                    }
+
+                    if (this.Entries[x][y].Height != 9 && !basin.Contains((x, y)))
+                    {
+                        stack.Push((x, y));
+                        basin.Add((x, y));
+                    }
+                }
+            }
+
+            return basin.Count;
         }
 
         /// <summary>
