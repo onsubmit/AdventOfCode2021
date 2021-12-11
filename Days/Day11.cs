@@ -22,12 +22,16 @@ namespace AdventOfCode2021.Days
             string[] lines = File.ReadAllLines("input\\Day11.txt");
             Octopi octopi = new(lines);
 
-            for (int i = 1; i <= 100; i++)
+            for (int i = 1; i <= 1000; i++)
             {
                 octopi.Step();
+                if (octopi.AreAllOctopiFlashing)
+                {
+                    return i.ToString();
+                }
             }
 
-            return octopi.NumFlashes.ToString();
+            throw new InvalidOperationException("All octopi never flashed simultanesouly.");
         }
     }
 }
