@@ -93,12 +93,12 @@ namespace AdventOfCode2021.Days
                 }
                 else if (c == Pairs[stack.Peek()])
                 {
-                    // Closing character find that corresponds to the most recent opening character.
+                    // Closing character found that corresponds to the most recent opening character.
                     stack.Pop();
                 }
                 else
                 {
-                    // Closing character find that does not correspond to the most recent opening character.
+                    // Closing character found that does not correspond to the most recent opening character.
                     // Line is corrupt.
                     return false;
                 }
