@@ -12,54 +12,99 @@ namespace AdventOfCode2021.Days
     internal class Day10 : IDay
     {
         /// <summary>
+        /// The pairs of matching characters.
+        /// </summary>
+        private static readonly Dictionary<char, char> Pairs = new()
+        {
+            { '(', ')' },
+            { '[', ']' },
+            { '{', '}' },
+            { '<', '>' },
+        };
+
+        /// <summary>
+        /// The scores for each closing character.
+        /// </summary>
+        private static readonly Dictionary<char, int> Scores = new()
+        {
+            { ')', 1 },
+            { ']', 2 },
+            { '}', 3 },
+            { '>', 4 },
+        };
+
+        /// <summary>
         /// Calculates the solution for the particular day.
         /// </summary>
         /// <returns>The solution.</returns>
         public string GetSolution()
         {
-            Dictionary<char, char> pairs = new()
-            {
-                { '(', ')' },
-                { '[', ']' },
-                { '{', '}' },
-                { '<', '>' },
-            };
-
-            Dictionary<char, int> scores = new()
-            {
-                { ')', 3 },
-                { ']', 57 },
-                { '}', 1197 },
-                { '>', 25137 },
-            };
-
             using StreamReader sr = new("input\\Day10.txt");
+            List<long> sums = new();
             string? line = null;
 
-            int sum = 0;
-            Stack<char> stack = new();
             while ((line = sr.ReadLine()) != null)
             {
-                stack.Clear();
-                foreach (char c in line)
+                if (!TryParseLine(line, out Stack<char> stack))
                 {
-                    if (pairs.ContainsKey(c))
+                    continue;
+                }
+
+                if (stack.Count > 0)
+                {
+                    // The line is not corrupt, but it is incomplete.
+                    long sum = 0;
+
+                    while (stack.TryPop(out char c))
                     {
-                        stack.Push(c);
+                        sum *= 5;
+                        sum += Scores[Pairs[c]];
                     }
-                    else if (c == pairs[stack.Peek()])
-                    {
-                        stack.Pop();
-                    }
-                    else
-                    {
-                        sum += scores[c];
-                        break;
-                    }
+
+                    sums.Add(sum);
                 }
             }
 
-            return sum.ToString();
+            if (sums.Count % 2 != 1)
+            {
+                throw new InvalidOperationException("There is supposed to be an odd number of scores.");
+            }
+
+            long solution = sums.OrderBy(s => s).ElementAt(sums.Count / 2);
+            return solution.ToString();
+        }
+
+        /// <summary>
+        /// Determines if the line is corrupt.
+        /// </summary>
+        /// <param name="line">The line from the input file.</param>
+        /// <param name="stack">The remaining unclosed characters.</param>
+        /// <returns><c>true</c> if the line is corrupt, <c>false</c> otherwise.</returns>
+        private static bool TryParseLine(string line, out Stack<char> stack)
+        {
+            stack = new();
+
+            foreach (char c in line)
+            {
+                if (Pairs.ContainsKey(c))
+                {
+                    // Opening character found.
+                    stack.Push(c);
+                }
+                else if (c == Pairs[stack.Peek()])
+                {
+                    // Closing character find that corresponds to the most recent opening character.
+                    stack.Pop();
+                }
+                else
+                {
+                    // Closing character find that does not correspond to the most recent opening character.
+                    // Line is corrupt.
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
