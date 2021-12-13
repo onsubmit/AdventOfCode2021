@@ -5,6 +5,7 @@
 namespace AdventOfCode2021
 {
     using System;
+    using System.Diagnostics;
     using AdventOfCode2021.Days;
 
     /// <summary>
@@ -22,8 +23,14 @@ namespace AdventOfCode2021
             int totalLength = Days.Length.ToString().Length;
             for (int i = 0; i < Days.Length; i++)
             {
+                Stopwatch stopWatch = Stopwatch.StartNew();
+                string solution = Days[i].GetSolution();
+                stopWatch.Stop();
+
                 string dayNumber = (i + 1).ToString().PadLeft(totalLength, '0');
-                Console.WriteLine($"Day {dayNumber}: {Days[i].GetSolution()}");
+                double elapsed = Math.Round(stopWatch.Elapsed.TotalMilliseconds);
+
+                Console.WriteLine($"Day {dayNumber}: {solution} in {elapsed}ms");
             }
         }
 
