@@ -63,15 +63,15 @@ namespace AdventOfCode2021.Models
         /// Gets all the paths from the current cave to the end cave.
         /// </summary>
         /// <returns>The list of all the paths.</returns>
-        public List<List<Cave>> GetPaths()
+        public List<CavePath> GetPaths()
         {
-            List<Stack<Cave>> paths = new();
-            Stack<Cave> path = new();
+            List<CavePath> paths = new();
+            CavePath path = new();
             path.Push(this.StartCave);
 
             this.GetPaths(this.StartCave, ref paths, ref path);
 
-            return paths.Select(p => p.ToList()).ToList();
+            return paths;
         }
 
         /// <summary>
@@ -80,28 +80,32 @@ namespace AdventOfCode2021.Models
         /// <param name="currentCave">The current cave.</param>
         /// <param name="paths">The list of known paths.</param>
         /// <param name="currentPath">The current processing path.</param>
-        private void GetPaths(Cave currentCave, ref List<Stack<Cave>> paths, ref Stack<Cave> currentPath)
+        private void GetPaths(Cave currentCave, ref List<CavePath> paths, ref CavePath currentPath)
         {
             foreach (Cave connectedCave in currentCave.ConnectedCaves)
             {
+                if (connectedCave == this.StartCave)
+                {
+                    continue;
+                }
+
                 if (connectedCave == this.EndCave)
                 {
-                    Stack<Cave> path = new();
+                    CavePath path = new();
                     path.Push(connectedCave);
 
-                    foreach (Cave cave in currentPath)
+                    foreach (Cave cave in currentPath.Caves)
                     {
                         path.Push(cave);
                     }
 
                     paths.Add(path);
                 }
-                else if (connectedCave.IsBig || !currentPath.Contains(connectedCave))
+                else if (connectedCave.IsBig || currentPath.CanAddSmallCave(connectedCave))
                 {
                     currentPath.Push(connectedCave);
 
                     this.GetPaths(connectedCave, ref paths, ref currentPath);
-
                     currentPath.Pop();
                 }
             }

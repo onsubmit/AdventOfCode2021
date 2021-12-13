@@ -62,6 +62,11 @@ namespace AdventOfCode2021.Models
         public bool IsEnd => this.Name == "end";
 
         /// <summary>
+        /// Gets a value indicating whether the cave is in the middle of the cave system.
+        /// </summary>
+        public bool IsMiddle => !this.IsStart && !this.IsEnd;
+
+        /// <summary>
         /// Adds the provided cave as a connected cave.
         /// </summary>
         /// <param name="cave">The connected cave.</param>

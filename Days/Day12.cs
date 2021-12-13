@@ -28,9 +28,8 @@ namespace AdventOfCode2021.Days
                 caves.AddConnectedCaves(line);
             }
 
-            List<List<Cave>> paths = caves.GetPaths();
-            int solution = paths.Count(l => l.Any(c => c.IsSmall));
-            return solution.ToString();
+            List<CavePath> paths = caves.GetPaths();
+            return paths.Count.ToString();
         }
     }
 }
