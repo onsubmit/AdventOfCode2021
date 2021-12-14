@@ -59,8 +59,12 @@ namespace AdventOfCode2021.Days
             }
 
             Paper paper = new(coordinates);
-            int solution = paper.Fold(folds[0]).VisibleDots;
-            return solution.ToString();
+            foreach (Fold fold in folds)
+            {
+                paper = paper.Fold(fold);
+            }
+
+            return Environment.NewLine + paper.ToString();
         }
     }
 }

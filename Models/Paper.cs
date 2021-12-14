@@ -60,14 +60,8 @@ namespace AdventOfCode2021.Models
             foreach (Coordinate coordinate in coordinates)
             {
                 this.grid[coordinate.X, coordinate.Y] = true;
-                this.VisibleDots++;
             }
         }
-
-        /// <summary>
-        /// Gets the number of visible dots.
-        /// </summary>
-        public int VisibleDots { get; private set; }
 
         /// <summary>
         /// Folds the paper.
@@ -88,7 +82,6 @@ namespace AdventOfCode2021.Models
                         if (this.grid[x, y] || this.grid[x, (2 * fold.Position) - y])
                         {
                             foldedPaper.grid[x, y] = true;
-                            foldedPaper.VisibleDots++;
                         }
                     }
                 }
@@ -106,7 +99,6 @@ namespace AdventOfCode2021.Models
                         if (this.grid[x, y] || this.grid[(2 * fold.Position) - x, y])
                         {
                             foldedPaper.grid[x, y] = true;
-                            foldedPaper.VisibleDots++;
                         }
                     }
                 }
@@ -129,7 +121,7 @@ namespace AdventOfCode2021.Models
                 StringBuilder line = new();
                 for (int x = 0; x < this.width; x++)
                 {
-                    line.Append(this.grid[x, y] ? "#" : ".");
+                    line.Append(this.grid[x, y] ? "#" : " ");
                 }
 
                 sb.AppendLine(line.ToString());
