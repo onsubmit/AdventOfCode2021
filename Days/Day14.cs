@@ -42,14 +42,14 @@ namespace AdventOfCode2021.Days
                 polymer.AddPairInsertionRule(pair, element);
             }
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 40; i++)
             {
                 polymer.RunInsertionRules();
             }
 
-            int mostCommonElementCount = polymer.ElementCounts.MaxBy(kvp => kvp.Value).Value;
-            int leastCommonElementCount = polymer.ElementCounts.MinBy(kvp => kvp.Value).Value;
-            int solution = mostCommonElementCount - leastCommonElementCount;
+            long mostCommonElementCount = polymer.ElementCounts.MaxBy(kvp => kvp.Value).Value;
+            long leastCommonElementCount = polymer.ElementCounts.MinBy(kvp => kvp.Value).Value;
+            long solution = mostCommonElementCount - leastCommonElementCount;
 
             return solution.ToString();
         }

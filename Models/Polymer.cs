@@ -12,7 +12,7 @@ namespace AdventOfCode2021.Models
     internal class Polymer
     {
         private readonly Dictionary<string, char> pairInsertionRules = new();
-        private readonly Dictionary<string, int> elementPairCounts = new();
+        private readonly Dictionary<string, long> elementPairCounts = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Polymer"/> class.
@@ -45,7 +45,7 @@ namespace AdventOfCode2021.Models
         /// <summary>
         /// Gets the counts of all the individual elements.
         /// </summary>
-        public Dictionary<char, int> ElementCounts { get; private set; } = new();
+        public Dictionary<char, long> ElementCounts { get; private set; } = new();
 
         /// <summary>
         /// Adds an element pair insertion rule.
@@ -70,7 +70,7 @@ namespace AdventOfCode2021.Models
         /// </summary>
         public void RunInsertionRules()
         {
-            Dictionary<string, (int, List<string>)> replacements = new();
+            Dictionary<string, (long, List<string>)> replacements = new();
             foreach (KeyValuePair<string, char> kvp in this.pairInsertionRules)
             {
                 string pair = kvp.Key;
@@ -81,18 +81,18 @@ namespace AdventOfCode2021.Models
                     continue;
                 }
 
-                int numToReplace = this.elementPairCounts[pair];
+                long numToReplace = this.elementPairCounts[pair];
                 List<string> newPairs = new() { $"{pair[0]}{element}", $"{element}{pair[1]}" };
 
                 replacements.Add(pair, (numToReplace, newPairs));
             }
 
-            foreach (KeyValuePair<string, (int NumToReplace, List<string> NewPairs)> kvp in replacements)
+            foreach (KeyValuePair<string, (long NumToReplace, List<string> NewPairs)> kvp in replacements)
             {
                 string pairToReplace = kvp.Key;
                 List<string> newPairs = kvp.Value.NewPairs;
 
-                int numToReplace = kvp.Value.NumToReplace;
+                long numToReplace = kvp.Value.NumToReplace;
                 this.RemovePair(pairToReplace, numToReplace);
 
                 this.IncrementPairCount(newPairs[0], numToReplace);
@@ -134,7 +134,7 @@ namespace AdventOfCode2021.Models
         /// </summary>
         /// <param name="element">The element whose count to increment.</param>
         /// <param name="amount">The amount by which to increment.</param>
-        private void IncrementElementCount(char element, int amount = 1)
+        private void IncrementElementCount(char element, long amount = 1)
         {
             if (!this.ElementCounts.ContainsKey(element))
             {
@@ -149,7 +149,7 @@ namespace AdventOfCode2021.Models
         /// </summary>
         /// <param name="pair">The element pair whose count to increment.</param>
         /// <param name="amount">The amount by which to increment.</param>
-        private void IncrementPairCount(string pair, int amount = 1)
+        private void IncrementPairCount(string pair, long amount = 1)
         {
             ValidatePair(pair);
 
@@ -166,7 +166,7 @@ namespace AdventOfCode2021.Models
         /// </summary>
         /// <param name="pair">The pair to remove.</param>
         /// <param name="copies">The number of copies to remove.</param>
-        private void RemovePair(string pair, int copies = 1)
+        private void RemovePair(string pair, long copies = 1)
         {
             ValidatePair(pair);
 
