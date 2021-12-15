@@ -24,8 +24,8 @@ namespace AdventOfCode2021.Days
             using StreamReader sr = new("input\\Day05.txt");
             string? line = null;
 
-            Coordinate minCoordinates = new() { X = int.MaxValue, Y = int.MaxValue };
-            Coordinate maxCoordinates = new() { X = int.MinValue, Y = int.MinValue };
+            Coordinate minCoordinates = new(int.MaxValue, int.MaxValue);
+            Coordinate maxCoordinates = new(int.MinValue, int.MinValue);
 
             List<VentReading> readings = new();
             while ((line = sr.ReadLine()) != null)

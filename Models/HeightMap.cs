@@ -11,10 +11,11 @@ namespace AdventOfCode2021.Models
     /// </summary>
     internal class HeightMap
     {
-        private static readonly (int, int)[] Directions = new[] { (-1, 0), (1, 0), (0, -1), (0, 1) };
-
         private readonly int width;
         private readonly int height;
+
+        private readonly Coordinate start;
+        private readonly Coordinate end;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HeightMap"/> class.
@@ -25,6 +26,8 @@ namespace AdventOfCode2021.Models
             this.Entries = inputLines.Select(l => l.Select(c => new HeightMapEntry(c)).ToArray()).ToArray();
             this.width = this.Entries.Length;
             this.height = this.Entries[0].Length;
+            this.start = new(0, 0);
+            this.end = new(this.width - 1, this.height - 1);
         }
 
         /// <summary>
@@ -36,9 +39,9 @@ namespace AdventOfCode2021.Models
         /// Gets the coordinates of all the low points.
         /// </summary>
         /// <returns>The coordinates of all the low points.</returns>
-        public List<(int X, int Y)> GetCoordinatesOfLowPoints()
+        public List<Coordinate> GetCoordinatesOfLowPoints()
         {
-            List<(int, int)> lowPoints = new();
+            List<Coordinate> lowPoints = new();
 
             for (int i = 0; i < this.width; i++)
             {
@@ -50,12 +53,13 @@ namespace AdventOfCode2021.Models
                         continue;
                     }
 
-                    bool isLowPoint = this.IsLowPoint(i, j);
+                    Coordinate coordinate = new(i, j);
+                    bool isLowPoint = this.IsLowPoint(coordinate);
                     this.Entries[i][j].IsLowPoint = isLowPoint;
 
                     if (isLowPoint)
                     {
-                        lowPoints.Add((i, j));
+                        lowPoints.Add(coordinate);
                     }
                 }
             }
@@ -66,42 +70,34 @@ namespace AdventOfCode2021.Models
         /// <summary>
         /// Gets the size of the basin for the low point at the given coordinates.
         /// </summary>
-        /// <param name="i">The index along the first dimension.</param>
-        /// <param name="j">The index along the second dimension.</param>
+        /// <param name="coordinate">The coordinate.</param>
         /// <returns>The size of the basin.</returns>
-        public int GetBasinSize(int i, int j)
+        public int GetBasinSize(Coordinate coordinate)
         {
-            if (this.Entries[i][j].IsLowPoint != true)
+            if (this.Entries[coordinate.X][coordinate.Y].IsLowPoint != true)
             {
                 throw new InvalidOperationException("This is not a low point.");
             }
 
-            Stack<(int, int)> stack = new();
-            HashSet<(int, int)> basin = new();
-            stack.Push((i, j));
-            basin.Add((i, j));
+            Stack<Coordinate> stack = new();
+            HashSet<Coordinate> basin = new();
+            stack.Push(coordinate);
+            basin.Add(coordinate);
 
-            while (stack.TryPop(out (int X, int Y) coords))
+            while (stack.TryPop(out Coordinate coords))
             {
-                foreach ((int X, int Y) direction in Directions)
+                foreach (Coordinate direction in Directions.Cardinal)
                 {
-                    int x = coords.X + direction.X;
-                    int y = coords.Y + direction.Y;
-
-                    if (x < 0 || x >= this.width)
+                    Coordinate neighbor = coords + direction;
+                    if (!neighbor.IsInRange(this.start, this.end))
                     {
                         continue;
                     }
 
-                    if (y < 0 || y >= this.height)
+                    if (this.Entries[neighbor.X][neighbor.Y].Height != 9 && !basin.Contains(neighbor))
                     {
-                        continue;
-                    }
-
-                    if (this.Entries[x][y].Height != 9 && !basin.Contains((x, y)))
-                    {
-                        stack.Push((x, y));
-                        basin.Add((x, y));
+                        stack.Push(neighbor);
+                        basin.Add(neighbor);
                     }
                 }
             }
@@ -112,28 +108,20 @@ namespace AdventOfCode2021.Models
         /// <summary>
         /// Determines if the height map entry is a low point.
         /// </summary>
-        /// <param name="i">The index along the first dimension.</param>
-        /// <param name="j">The index along the second dimension.</param>
+        /// <param name="coordinate">The coordinate.</param>
         /// <returns><c>true</c> if the height map entry is a low point, <c>false</c> otherwise.</returns>
-        private bool IsLowPoint(int i, int j)
+        private bool IsLowPoint(Coordinate coordinate)
         {
-            foreach ((int X, int Y) direction in Directions)
+            foreach (Coordinate direction in Directions.Cardinal)
             {
-                int x = i + direction.X;
-                int y = j + direction.Y;
-
-                if (x < 0 || x >= this.width)
+                Coordinate neighbor = coordinate + direction;
+                if (!neighbor.IsInRange(this.start, this.end))
                 {
                     continue;
                 }
 
-                if (y < 0 || y >= this.height)
-                {
-                    continue;
-                }
-
-                if (this.Entries[x][y].IsLowPoint == true
-                    || this.Entries[i][j].Height >= this.Entries[x][y].Height)
+                if (this.Entries[neighbor.X][neighbor.Y].IsLowPoint == true
+                    || this.Entries[coordinate.X][coordinate.Y].Height >= this.Entries[neighbor.X][neighbor.Y].Height)
                 {
                     return false;
                 }

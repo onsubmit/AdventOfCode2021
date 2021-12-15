@@ -11,12 +11,12 @@ namespace AdventOfCode2021.Models
     /// </summary>
     internal class Octopi
     {
-        private static readonly (int, int)[] Directions = new[] { (-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1) };
-
         private readonly Octopus[,] octopi;
         private readonly int width;
         private readonly int height;
         private readonly int total;
+        private readonly Coordinate start;
+        private readonly Coordinate end;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Octopi"/> class.
@@ -27,6 +27,8 @@ namespace AdventOfCode2021.Models
             this.width = lines.Length;
             this.height = lines[0].Length;
             this.total = this.width * this.height;
+            this.start = new(0, 0);
+            this.end = new(this.width - 1, this.height - 1);
 
             this.octopi = new Octopus[this.width, this.height];
             for (int x = 0; x < this.width; x++)
@@ -54,7 +56,7 @@ namespace AdventOfCode2021.Models
             {
                 for (int y = 0; y < this.height; y++)
                 {
-                    this.StepAt(x, y, ref newlyFlashing);
+                    this.StepAt(new(x, y), ref newlyFlashing);
                 }
             }
 
@@ -67,19 +69,18 @@ namespace AdventOfCode2021.Models
         /// <summary>
         /// Performs a step at a single octopus.
         /// </summary>
-        /// <param name="x">The first coordinate.</param>
-        /// <param name="y">The second coordinate.</param>
+        /// <param name="coordinate">The coordinate.</param>
         /// <param name="newlyFlashing">The list of newly flashing octopi.</param>
-        private void StepAt(int x, int y, ref List<Octopus> newlyFlashing)
+        private void StepAt(Coordinate coordinate, ref List<Octopus> newlyFlashing)
         {
-            Octopus octopus = this.octopi[x, y];
+            Octopus octopus = this.octopi[coordinate.X, coordinate.Y];
             if (!octopus.IsFlashing)
             {
                 octopus.Step();
                 if (octopus.IsFlashing)
                 {
                     newlyFlashing.Add(octopus);
-                    this.SpreadFlashingAt(x, y, ref newlyFlashing);
+                    this.SpreadFlashingAt(coordinate, ref newlyFlashing);
                 }
             }
         }
@@ -87,27 +88,19 @@ namespace AdventOfCode2021.Models
         /// <summary>
         /// Spreads the flashing from the octopus at (x, y) to adjacent octopi.
         /// </summary>
-        /// <param name="i">The first coordinate.</param>
-        /// <param name="j">The second coordinate.</param>
+        /// <param name="coordinate">The coordinate.</param>
         /// <param name="newlyFlashing">The list of newly flashing octopi.</param>
-        private void SpreadFlashingAt(int i, int j, ref List<Octopus> newlyFlashing)
+        private void SpreadFlashingAt(Coordinate coordinate, ref List<Octopus> newlyFlashing)
         {
-            foreach ((int X, int Y) direction in Directions)
+            foreach (Coordinate direction in Directions.CardinalAndOrdinal)
             {
-                int x = i + direction.X;
-                int y = j + direction.Y;
-
-                if (x < 0 || x >= this.width)
+                Coordinate neighbor = coordinate + direction;
+                if (!neighbor.IsInRange(this.start, this.end))
                 {
                     continue;
                 }
 
-                if (y < 0 || y >= this.height)
-                {
-                    continue;
-                }
-
-                this.StepAt(x, y, ref newlyFlashing);
+                this.StepAt(neighbor, ref newlyFlashing);
             }
         }
     }

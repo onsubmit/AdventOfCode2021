@@ -36,8 +36,8 @@ namespace AdventOfCode2021.Models
         /// <exception cref="InvalidOperationException">Thrown if input is bad.</exception>
         public Paper(List<Coordinate> coordinates)
         {
-            Coordinate min = new() { X = int.MaxValue, Y = int.MaxValue };
-            Coordinate max = new() { X = int.MinValue, Y = int.MinValue };
+            Coordinate min = new(int.MaxValue, int.MaxValue);
+            Coordinate max = new(int.MinValue, int.MinValue);
 
             foreach (Coordinate coordinate in coordinates)
             {
