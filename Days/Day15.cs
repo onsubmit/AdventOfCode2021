@@ -11,6 +11,7 @@ namespace AdventOfCode2021.Days
     /// <summary>
     /// Calculates the solution for the particular day.
     /// </summary>
+    [Skip("Part 2 takes about 8 minutes")]
     internal class Day15 : IDay
     {
         private static readonly Dictionary<Coordinate, int> TotalRisks = new();
@@ -103,20 +104,35 @@ namespace AdventOfCode2021.Days
         /// </summary>
         private static void BuildRisksFromInput()
         {
+            const int LargerBy = 5;
+
             string[] lines = File.ReadAllLines("input\\Day15.txt");
             width = lines.Length;
             height = lines[0].Length;
 
-            start = new(0, 0);
-            end = new(width - 1, height - 1);
-
-            for (int x = 0; x < width; x++)
+            for (int i = 0; i < LargerBy; i++)
             {
-                for (int y = 0; y < height; y++)
+                for (int j = 0; j < LargerBy; j++)
                 {
-                    Risks[new(x, y)] = (int)char.GetNumericValue(lines[x][y]);
+                    for (int x = 0; x < width; x++)
+                    {
+                        for (int y = 0; y < height; y++)
+                        {
+                            int value = (int)char.GetNumericValue(lines[x][y]) + i + j;
+                            value = value > 9 ? value % 9 : value;
+
+                            Coordinate coordinate = new(x + (i * width), y + (j * height));
+                            Risks[coordinate] = value;
+                        }
+                    }
                 }
             }
+
+            width *= LargerBy;
+            height *= LargerBy;
+
+            start = new(0, 0);
+            end = new(width - 1, height - 1);
         }
     }
 }
