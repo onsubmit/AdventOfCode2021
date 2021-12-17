@@ -25,12 +25,15 @@ namespace AdventOfCode2021.Days
         {
             binaryDigits = GetBinaryStringFromInput();
 
-            List<Packet> packets = DecodePackets();
-
-            int versionSum = packets.Select(p => p.Version).Sum();
-            return versionSum.ToString();
+            Packet packet = DecodePackets();
+            return packet.Value.ToString();
         }
 
+        /// <summary>
+        /// Gets the binary string from the input file.
+        /// </summary>
+        /// <returns>The binary string from the input file.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if input is bad.</exception>
         private static string GetBinaryStringFromInput()
         {
             using StreamReader sr = new("input\\Day16.txt");
@@ -56,58 +59,56 @@ namespace AdventOfCode2021.Days
         /// </summary>
         /// <returns>The decoded packets.</returns>
         /// <exception cref="InvalidOperationException">Thrown if input is bad.</exception>
-        private static List<Packet> DecodePackets()
+        private static Packet DecodePackets()
         {
-            List<Packet> packets = new();
-
             // The first three bits are the packet version.
             int packetVersion = Convert.ToInt32(binaryDigits[index..(index += 3)], 2);
 
             // The next three bits are the packet type ID.
-            int packetType = Convert.ToInt32(binaryDigits[index..(index += 3)], 2);
+            PacketType packetType = (PacketType)Convert.ToInt32(binaryDigits[index..(index += 3)], 2);
+            if (packetType < PacketType.Sum || packetType > PacketType.EqualTo)
+            {
+                throw new InvalidCastException($"Invalid packet type: {packetType})");
+            }
 
-            if (packetType == LiteralPacket.Type)
+            if (packetType == PacketType.Literal)
             {
                 long valueBase10 = ParseLiteralPacketValue();
                 LiteralPacket packet = new(packetVersion, valueBase10);
-                packets.Add(packet);
+                return packet;
             }
-            else
+
+            OperatorPacket operatorPacket = new(packetType, packetVersion);
+
+            // The next bit is the length type ID.
+            int lengthType = Convert.ToInt32(binaryDigits[index++].ToString(), 2);
+            switch (lengthType)
             {
-                OperatorPacket packet = new(packetVersion);
-                packets.Add(packet);
+                case 0:
+                    // The next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet.
+                    int subPacketLength = Convert.ToInt32(binaryDigits[index..(index += 15)], 2);
+                    int endIndex = index + subPacketLength;
 
-                // The next bit is the length type ID.
-                int lengthType = Convert.ToInt32(binaryDigits[index++].ToString(), 2);
-                switch (lengthType)
-                {
-                    case 0:
-                        // The next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet.
-                        int subPacketLength = Convert.ToInt32(binaryDigits[index..(index += 15)], 2);
-                        int endIndex = index + subPacketLength;
+                    while (index < endIndex)
+                    {
+                        operatorPacket.SubPackets.Add(DecodePackets());
+                    }
 
-                        // while remaining subpackets
-                        while (index < endIndex)
-                        {
-                            packets.AddRange(DecodePackets());
-                        }
+                    break;
+                case 1:
+                    // The next 11 bits are a number that represents the number of sub-packets immediately contained by this packet.
+                    int numSubPackets = Convert.ToInt32(binaryDigits[index..(index += 11)], 2);
+                    for (int i = 0; i < numSubPackets; i++)
+                    {
+                        operatorPacket.SubPackets.Add(DecodePackets());
+                    }
 
-                        break;
-                    case 1:
-                        // The next 11 bits are a number that represents the number of sub-packets immediately contained by this packet.
-                        int numSubPackets = Convert.ToInt32(binaryDigits[index..(index += 11)], 2);
-                        for (int i = 0; i < numSubPackets; i++)
-                        {
-                            packets.AddRange(DecodePackets());
-                        }
-
-                        break;
-                    default:
-                        throw new InvalidOperationException("Length type must be 0 or 1.");
-                }
+                    break;
+                default:
+                    throw new InvalidOperationException("Length type must be 0 or 1.");
             }
 
-            return packets;
+            return operatorPacket;
         }
 
         /// <summary>

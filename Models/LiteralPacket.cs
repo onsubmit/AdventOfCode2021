@@ -12,24 +12,23 @@ namespace AdventOfCode2021.Models
     internal class LiteralPacket : Packet
     {
         /// <summary>
-        /// Literal packets all have a type of "4".
-        /// </summary>
-        public const int Type = 4;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="LiteralPacket"/> class.
         /// </summary>
         /// <param name="version">The packet version.</param>
         /// <param name="value">The packet value.</param>
         public LiteralPacket(int version, long value)
-            : base(version)
+            : base(PacketType.Literal, version)
         {
             this.Value = value;
         }
 
         /// <summary>
-        /// Gets the packet value.
+        /// Returns a string representation of the literal packet.
         /// </summary>
-        public long Value { get; private set; }
+        /// <returns>A string representation of the literal packet.</returns>
+        public override string ToString()
+        {
+            return this.Value.ToString();
+        }
     }
 }
