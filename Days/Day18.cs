@@ -19,22 +19,24 @@ namespace AdventOfCode2021.Days
         /// <returns>The solution.</returns>
         public string GetSolution()
         {
-            using StreamReader sr = new("input\\Day18.txt");
-            string? line = null;
+            string[] lines = File.ReadAllLines("input\\Day18.txt");
 
-            List<SnailfishNumber> numbers = new();
-            while ((line = sr.ReadLine()) != null)
+            int maxMagnitude = int.MinValue;
+            for (int i = 0; i < lines.Length; i++)
             {
-                numbers.Add(new(line));
+                for (int j = 0; j < lines.Length; j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+
+                    SnailfishNumber sum = new SnailfishNumber(lines[i]) + new SnailfishNumber(lines[j]);
+                    maxMagnitude = Math.Max(maxMagnitude, sum.Magnitude);
+                }
             }
 
-            SnailfishNumber sum = numbers[0];
-            for (int i = 1; i < numbers.Count; i++)
-            {
-                sum += numbers[i];
-            }
-
-            return sum.Magnitude.ToString();
+            return maxMagnitude.ToString();
         }
     }
 }
