@@ -21,3 +21,5 @@ Day 13:
 Day 14: 3941782230241 in 22ms
 Day 15: 2800 in 452943ms
 Day 16: 10185143721112 in 7ms
+Day 17: Part 1: 4278. Part 2: 1994 in 205ms
+Day 18: 3725 in 40ms
